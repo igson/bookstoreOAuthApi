@@ -2,6 +2,8 @@ package token_acesso
 
 import "time"
 
+import "fmt"
+
 const (
 	tempoExpiracao = 24
 )
@@ -21,5 +23,8 @@ func GeraTokenDeAcesso() AccessToken {
 }
 
 func (token AccessToken) IsTokenExpirado() bool {
-	return false
+	now := time.Now().UTC()
+	tempoExpiracao := time.Unix(token.ExpiredToken,0)
+	fmt.Println(tempoExpiracao)
+	return now.After(tempoExpiracao)
 } 
