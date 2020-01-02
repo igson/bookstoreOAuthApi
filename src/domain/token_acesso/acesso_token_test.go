@@ -5,13 +5,13 @@ import(
 	"testing"	
 )
 
-func TestGeraTokenDeAcesso(t *testing.T)  
+func TestGeraTokenDeAcesso(t *testing.T)   {
 	token := GeraTokenDeAcesso()
-	if token.IsToken() {
+	if token.IsTokenExpirado() {
 		t.Error("O token de acesso não pode ser vázio")
 	}
 
-	if token.AcAccessToken != "" {
+	if token.AccessToken != "" {
 		t.Error("new accesse token should not have defined access token id")
 	}
 
