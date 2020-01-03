@@ -4,6 +4,9 @@ import "time"
 
 import "fmt"
 
+import "github.com/igson/bookstoreUserApi/utils/erros"
+
+
 const (
 	tempoExpiracao = 24
 )
@@ -14,7 +17,6 @@ type AccessToken struct {
 	ClienteId int64 `json:"cliente_id"`
 	ExpiredToken  int64 `json:"expired_token"`
 }
-
 
 func GeraTokenDeAcesso() AccessToken {
 	return AccessToken{
