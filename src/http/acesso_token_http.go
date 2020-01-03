@@ -8,6 +8,8 @@ import "github.com/gin-gonic/gin"
 
 import "net/http"
 
+import "strings"
+
 type AccessTokenHandler interface {
 	BuscarPorId(*gin.Context)
 }
@@ -23,5 +25,12 @@ func NewHandler(service token_acesso.Service) AccessTokenHandler {
 }
 
 func (h *accessTokenHandler) BuscarPorId(ctx *gin.Context) {
-	ctx.JSON(http.StatusNotImplemented, "Implemente-me")
+	tokenAcesso, erro := h.service.BuscarPorId(strings.TrimSpace(ctx.Param("acessoTokenId")))
+
+	if erro != nil {
+		ctx.JSON(erro.Status, erro)
+		return 
+	}
+
+	ctx.JSON(http.StatusOK, tokenAcesso)
 }
