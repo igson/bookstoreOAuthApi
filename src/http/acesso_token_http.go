@@ -1,14 +1,11 @@
 package http
 
-import "github.com/igson/bookstoreOAuthApi/src/domain/token_acesso"
-
-import "github.com/igson/bookstoreUserApi/utils/erros"
-
-import "github.com/gin-gonic/gin"
-
-import "net/http"
-
-import "strings"
+import(
+	"github.com/igson/bookstoreOAuthApi/src/domain/token_acesso"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"strings"
+)
 
 type AccessTokenHandler interface {
 	BuscarPorId(*gin.Context)
@@ -25,6 +22,7 @@ func NewHandler(service token_acesso.Service) AccessTokenHandler {
 }
 
 func (h *accessTokenHandler) BuscarPorId(ctx *gin.Context) {
+	
 	tokenAcesso, erro := h.service.BuscarPorId(strings.TrimSpace(ctx.Param("acessoTokenId")))
 
 	if erro != nil {

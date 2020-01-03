@@ -1,13 +1,14 @@
 package token_acesso
 
-import "github.com/igson/bookstoreUserApi/utils/erros"
+import "github.com/igson/bookstoreOAuthApi/src/utils/erros"
+
 
 type Repository interface {
-	BuscarPorId(string) (*AccessToken, *erros.MsgErro)
+	BuscarPorId(tokenAcessoId string) (*AccessToken, *erros.MsgErroApi)
 }
 
 type Service interface {
-	BuscarPorId(string) (*AccessToken, *erros.MsgErro)
+	BuscarPorId(tokenAcessoId string) (*AccessToken, *erros.MsgErroApi)
 }
 
 type service struct {
@@ -20,6 +21,13 @@ func NewService(repo Repository) Service {
 	}
 }
 
-func (s *service) BuscarPorId(string) (*AccessToken, *erros.MsgErro) {
-	return nil, nil	
+func (s *service) BuscarPorId(tokenAcessoId string) (*AccessToken, *erros.MsgErroApi) {
+	tokenAcesso, erro := s.repository.BuscarPorId(tokenAcessoId)
+	
+	if erro != nil {
+		return nil, erro
+	}
+
+	return tokenAcesso, nil
+
 }

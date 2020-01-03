@@ -18,5 +18,5 @@ func StartApplication() {
 
 	rotas.GET("/oauth/acesso_token/:acessoTokenId", atHandler.BuscarPorId)
 
-	rotas.Run("8080")
+	rotas.Run(":8080")
 }
