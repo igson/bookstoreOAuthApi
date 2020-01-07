@@ -7,6 +7,7 @@ import(
 	"strings"
 )
 
+//FIXME melhorar o código
 type AccessTokenHandler interface {
 	BuscarPorId(*gin.Context)
 }
