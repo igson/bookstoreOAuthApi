@@ -1,15 +1,15 @@
 package app
 
 import (
-	"github.com/igson/bookstoreOAuthApi/src/domain/token_acesso"
-	"github.com/igson/bookstoreOAuthApi/src/clients/cassandra"
+	"github.com/igson/bookstoreOAuthApi/src/repository"
 	"github.com/gin-gonic/gin"
-	"github.com/igson/bookstoreOAuthApi/src/repository/db"
+	"github.com/igson/bookstoreOAuthApi/src/clients/cassandra"
 	"github.com/igson/bookstoreOAuthApi/src/http"
+	"github.com/igson/bookstoreOAuthApi/src/service"
 )
 
 var (
-	rotas = gin.Default()
+	rota = gin.Default()
 )
 
 func StartApplication() {
@@ -22,8 +22,14 @@ func StartApplication() {
 
 	sessao.Close()
 
-	atHandler := http.NewHandler(token_acesso.NewService(db.NewRepository()))	
-	rotas.GET("/oauth/acesso_token/:acessoTokenId", atHandler.BuscarPorId)
-	
-	rotas.Run(":8080")
+	atHandler := http.NewHandler(service.NewTokenService(repository.NewTokenRepository()))
+
+	token := rota.Group("/api")
+	{
+		token.GET("/oauth/tokens/:acessoTokenId", atHandler.BuscarPorId)
+		token.POST("/oauth/tokens", atHandler.CriarTokenAcesso)
+	}
+
+	rota.Run(":8080")
+
 }
