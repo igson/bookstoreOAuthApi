@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"github.com/igson/bookstoreOAuthApi/src/model"
 	"github.com/gocql/gocql"
 	"github.com/igson/bookstoreOAuthApi/src/clients/cassandra"
+	"github.com/igson/bookstoreOAuthApi/src/domain"
 	"github.com/igson/bookstoreOAuthApi/src/utils/erros"
 )
 
@@ -21,12 +21,12 @@ type tokenRepository struct{}
 
 //TokenRepository interface do repositorio
 type TokenRepository interface {
-	CriarTokenAcesso(model.TokenAcesso) *erros.MsgErroApi
-	AtualizarTokenExpirado(model.TokenAcesso) *erros.MsgErroApi
-	BuscarPorId(tokenAcessoID string) (*model.TokenAcesso, *erros.MsgErroApi)
+	CriarTokenAcesso(domain.TokenAcesso) *erros.MsgErroApi
+	AtualizarTokenExpirado(domain.TokenAcesso) *erros.MsgErroApi
+	BuscarPorId(tokenAcessoID string) (*domain.TokenAcesso, *erros.MsgErroApi)
 }
 
-func (repo *tokenRepository) CriarTokenAcesso(token model.TokenAcesso) *erros.MsgErroApi {
+func (repo *tokenRepository) CriarTokenAcesso(token domain.TokenAcesso) *erros.MsgErroApi {
 
 	if erro := cassandra.GetSession().Query(queryCriarTokenAcesso,
 		token.AccessToken,
@@ -41,9 +41,9 @@ func (repo *tokenRepository) CriarTokenAcesso(token model.TokenAcesso) *erros.Ms
 
 }
 
-func (repo *tokenRepository) AtualizarTokenExpirado(token model.TokenAcesso) *erros.MsgErroApi {
+func (repo *tokenRepository) AtualizarTokenExpirado(token domain.TokenAcesso) *erros.MsgErroApi {
 
-	if erro :=  cassandra.GetSession().Query(queryAtualizarTokenExpirado,
+	if erro := cassandra.GetSession().Query(queryAtualizarTokenExpirado,
 		token.ExpiredToken,
 		token.AccessToken,
 	).Exec(); erro != nil {
@@ -55,9 +55,9 @@ func (repo *tokenRepository) AtualizarTokenExpirado(token model.TokenAcesso) *er
 }
 
 //BuscarPorId metodo que realiza s budsca do token pelo ID
-func (repo *tokenRepository) BuscarPorId(tokenAcessoID string) (*model.TokenAcesso, *erros.MsgErroApi) {
+func (repo *tokenRepository) BuscarPorId(tokenAcessoID string) (*domain.TokenAcesso, *erros.MsgErroApi) {
 
-	var tokenAcesso model.TokenAcesso
+	var tokenAcesso domain.TokenAcesso
 
 	if erro := cassandra.GetSession().Query(queryGetTokenAcesso, tokenAcessoID).Scan(
 		&tokenAcesso.AccessToken,   //param 1

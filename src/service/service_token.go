@@ -1,16 +1,16 @@
 package service
 
 import (
-	"github.com/igson/bookstoreOAuthApi/src/model"
+	"github.com/igson/bookstoreOAuthApi/src/domain"
 	"github.com/igson/bookstoreOAuthApi/src/repository"
 	"strings"
 	"github.com/igson/bookstoreOAuthApi/src/utils/erros"
 )
 
 type TokenService interface {
-	CriarTokenAcesso(model.TokenAcesso) *erros.MsgErroApi
-	AtualizarTokenExpirado(model.TokenAcesso) *erros.MsgErroApi
-	BuscarPorId(string) (*model.TokenAcesso, *erros.MsgErroApi)
+	CriarTokenAcesso(domain.TokenAcesso) *erros.MsgErroApi
+	AtualizarTokenExpirado(domain.TokenAcesso) *erros.MsgErroApi
+	BuscarPorId(string) (*domain.TokenAcesso, *erros.MsgErroApi)
 }
 
 type tokenService struct {
@@ -24,7 +24,7 @@ func NewTokenService(repo repository.TokenRepository) TokenService {
 	}
 }
 
-func (service *tokenService) CriarTokenAcesso(token model.TokenAcesso) *erros.MsgErroApi {
+func (service *tokenService) CriarTokenAcesso(token domain.TokenAcesso) *erros.MsgErroApi {
 
 	if erro := token.Validar(); erro != nil {
 		return erro
@@ -33,7 +33,7 @@ func (service *tokenService) CriarTokenAcesso(token model.TokenAcesso) *erros.Ms
 	return service.tokenRepository.CriarTokenAcesso(token)
 }
 
-func (service *tokenService) AtualizarTokenExpirado(token model.TokenAcesso) *erros.MsgErroApi {
+func (service *tokenService) AtualizarTokenExpirado(token domain.TokenAcesso) *erros.MsgErroApi {
 
 	if erro := token.Validar(); erro != nil {
 		return erro
@@ -42,7 +42,7 @@ func (service *tokenService) AtualizarTokenExpirado(token model.TokenAcesso) *er
 	return service.tokenRepository.AtualizarTokenExpirado(token)
 }
 
-func (service *tokenService) BuscarPorId(tokenAcessoId string) (*model.TokenAcesso, *erros.MsgErroApi) {
+func (service *tokenService) BuscarPorId(tokenAcessoId string) (*domain.TokenAcesso, *erros.MsgErroApi) {
 
 	tokenId := strings.TrimSpace(tokenAcessoId)
 

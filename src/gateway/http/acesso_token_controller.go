@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/igson/bookstoreOAuthApi/src/model"
+	"github.com/igson/bookstoreOAuthApi/src/domain"
 	"github.com/igson/bookstoreOAuthApi/src/service"
 	"github.com/igson/bookstoreOAuthApi/src/utils/erros"
 )
@@ -46,7 +46,7 @@ func (h *accessTokenHandler) BuscarPorId(ctx *gin.Context) {
 //CriarTokenAcesso reponsável por criar o token de acesso
 func (h *accessTokenHandler) CriarTokenAcesso(ctx *gin.Context) {
 
-	var token model.TokenAcesso
+	var token domain.TokenAcesso
 
 	if jsonErroBind := ctx.ShouldBindJSON(&token); jsonErroBind != nil {
 		msgErro := erros.MsgBadRequestErro("Formato de campos inválido.")
