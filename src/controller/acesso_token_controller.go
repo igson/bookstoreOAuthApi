@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"fmt"
@@ -59,6 +59,6 @@ func (h *accessTokenHandler) CriarTokenAcesso(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, token )
+	ctx.JSON(http.StatusCreated, token)
 
 }
