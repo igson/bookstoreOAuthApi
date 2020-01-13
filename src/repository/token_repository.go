@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	queryGetTokenAcesso         = "SELECT access_token, client_id, user_id, expires FROM access_token WHERE access_token=?;"
-	queryCriarTokenAcesso       = "INSERT INTO access_token(access_token, client_id, user_id, expires) VALUES (?,?,?,?);"
-	queryAtualizarTokenExpirado = "UPDATE access_token SET expires=? WHERE access_token=?;"
+	queryGetTokenAcesso         = "SELECT access_token, client_id, user_id, expires FROM access_tokens WHERE access_token=?;"
+	queryCriarTokenAcesso       = "INSERT INTO access_tokens(access_token, client_id, user_id, expires) VALUES (?,?,?,?);"
+	queryAtualizarTokenExpirado = "UPDATE access_tokens SET expires=? WHERE access_token=?;"
 )
 
 func NewTokenRepository() TokenRepository {
