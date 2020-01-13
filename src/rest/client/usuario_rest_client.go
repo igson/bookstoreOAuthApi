@@ -27,6 +27,7 @@ func NewUsuarioRestClient() UsuarioRestClient {
 }
 
 func (u *usuarioRestClient) LoginUsuario(email string, senha string) (*dto.UsuarioDTO, *erros.MsgErroApi) {
+	
 	usuarioDTO := dto.UsuarioDTO{
 		Email: email,
 		Senha: senha,

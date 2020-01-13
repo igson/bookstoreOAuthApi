@@ -1,5 +1,6 @@
 package dto
 
+
 type UsuarioDTO struct {
 	Id          int64  `json:"id,omitempty"`
 	Nome        string `json:"nome,omitempty"`
@@ -9,3 +10,4 @@ type UsuarioDTO struct {
 	Senha       string `json:"senha,omitempty"`
 	DataCriacao string `json:"data_criacao,omitempty"`
 }
+

@@ -31,7 +31,7 @@ func NewHandler(service service.TokenService) AccessTokenHandler {
 //BuscarPorId realiza a busca por ID do usuário
 func (h *accessTokenHandler) BuscarPorId(ctx *gin.Context) {
 
-	fmt.Println("ID do Token: ", strings.TrimSpace(ctx.Param("acessoTokenId")))
+	fmt.Println("User API ID do Token: ", strings.TrimSpace(ctx.Param("acessoTokenId")))
 
 	tokenAcesso, erro := h.tokenService.BuscarPorId(strings.TrimSpace(ctx.Param("acessoTokenId")))
 
@@ -46,15 +46,17 @@ func (h *accessTokenHandler) BuscarPorId(ctx *gin.Context) {
 //CriarTokenAcesso reponsável por criar o token de acesso
 func (h *accessTokenHandler) CriarTokenAcesso(ctx *gin.Context) {
 
-	var token domain.TokenAcesso
+	var t domain.RequestTokenAcesso
 
-	if jsonErroBind := ctx.ShouldBindJSON(&token); jsonErroBind != nil {
+	if jsonErroBind := ctx.ShouldBindJSON(&t); jsonErroBind != nil {
 		msgErro := erros.MsgBadRequestErro("Formato de campos inválido.")
 		ctx.JSON(msgErro.Status, msgErro)
 		return
 	}
 
-	if msgErro := h.tokenService.CriarTokenAcesso(token); msgErro != nil {
+	token, msgErro := h.tokenService.CriarTokenAcesso(t)
+
+	if msgErro != nil {
 		ctx.JSON(msgErro.Status, msgErro)
 		return
 	}

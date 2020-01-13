@@ -2,13 +2,18 @@ package service
 
 import (
 	"github.com/igson/bookstoreOAuthApi/src/domain"
+	"github.com/igson/bookstoreOAuthApi/src/rest/client"
 	"github.com/igson/bookstoreOAuthApi/src/repository"
 	"strings"
 	"github.com/igson/bookstoreOAuthApi/src/utils/erros"
 )
 
+var (
+	usuarioClientApi = client.NewUsuarioRestClient()
+)
+
 type TokenService interface {
-	CriarTokenAcesso(domain.TokenAcesso) *erros.MsgErroApi
+	CriarTokenAcesso(domain.RequestTokenAcesso) (*domain.TokenAcesso, *erros.MsgErroApi)
 	AtualizarTokenExpirado(domain.TokenAcesso) *erros.MsgErroApi
 	BuscarPorId(string) (*domain.TokenAcesso, *erros.MsgErroApi)
 }
@@ -24,14 +29,28 @@ func NewTokenService(repo repository.TokenRepository) TokenService {
 	}
 }
 
-func (service *tokenService) CriarTokenAcesso(token domain.TokenAcesso) *erros.MsgErroApi {
+func (service *tokenService) CriarTokenAcesso(token domain.RequestTokenAcesso) (*domain.TokenAcesso, *erros.MsgErroApi) {
 
 	if erro := token.Validar(); erro != nil {
-		return erro
+		return nil, erro
 	}
 
-	return service.tokenRepository.CriarTokenAcesso(token)
+	usuario, erro := usuarioClientApi.LoginUsuario(token.Nome, token.Senha)
+
+	if erro != nil {
+		return nil, erro
+	}
+
+	newToken := domain.GetNewAccessToken(usuario.Id)
+	newToken.Generate()
+
+	if erro := service.tokenRepository.CriarTokenAcesso(newToken); erro != nil {
+		return nil, erro
+	}
+
+	return &newToken, nil
 }
+
 
 func (service *tokenService) AtualizarTokenExpirado(token domain.TokenAcesso) *erros.MsgErroApi {
 
