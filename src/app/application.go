@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/igson/bookstoreOAuthApi/src/controller"
+	"github.com/igson/bookstoreOAuthApi/src/controllers"
 	"github.com/igson/bookstoreOAuthApi/src/repository"
 	"github.com/igson/bookstoreOAuthApi/src/service"
 )
@@ -14,12 +14,12 @@ var (
 //StartApplication - dá início a aplicação
 func StartApplication() {
 
-	atHandler := controller.NewHandler(service.NewTokenService(repository.NewTokenRepository()))
+	tokenController := controllers.NewTokenController(service.NewTokenService(repository.NewTokenRepository()))
 
-	token := rota.Group("/api")
+	token := rota.Group("")
 	{
-		token.GET("/oauth/tokens/:acessoTokenId", atHandler.BuscarPorId)
-		token.POST("/oauth/tokens", atHandler.CriarTokenAcesso)
+		token.GET("/oauth/tokens/:acessoTokenId", tokenController.GetByID)
+		token.POST("/oauth/tokens", tokenController.Create)
 	}
 
 	rota.Run(":8080")

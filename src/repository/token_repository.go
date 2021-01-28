@@ -1,75 +1,70 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/gocql/gocql"
-	"github.com/igson/bookstoreOAuthApi/src/clients/cassandra"
+	"github.com/igson/bookstoreOAuthApi/src/databases/cassandra"
 	"github.com/igson/bookstoreOAuthApi/src/domain"
-	"github.com/igson/bookstoreOAuthApi/src/utils/erros"
+	"github.com/igson/bookstoreOAuthApi/src/utils/errors"
 )
 
 const (
-	queryGetTokenAcesso         = "SELECT access_token, client_id, user_id, expires FROM access_tokens WHERE access_token=?;"
-	queryCriarTokenAcesso       = "INSERT INTO access_tokens(access_token, client_id, user_id, expires) VALUES (?,?,?,?);"
-	queryAtualizarTokenExpirado = "UPDATE access_tokens SET expires=? WHERE access_token=?;"
+	queryGetAccessToken         = "SELECT access_token, user_id, client_id, expires FROM access_tokens WHERE access_token = ?"
+	queryCreateAccessToken      = "INSERT INTO access_tokens(access_token, user_id, client_id, expires) VALUES (?, ?, ?, ?);"
+	queryUpdateExpires          = "UPDATE access_tokens SET expires=? WHERE access_token=?;"
+	queryFindByEmailAndPassword = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE email=? AND password=? AND status=?"
 )
+
+type TokenRepository interface {
+	GetByID(string) (*domain.Token, *errors.RestErroAPI)
+	Create(domain.Token) *errors.RestErroAPI
+	UpdateExpirationTime(domain.Token) *errors.RestErroAPI
+}
+
+type tokenRepository struct {
+}
 
 func NewTokenRepository() TokenRepository {
 	return &tokenRepository{}
 }
 
-type tokenRepository struct{}
+func (r *tokenRepository) GetByID(tokenID string) (*domain.Token, *errors.RestErroAPI) {
 
-//TokenRepository interface do repositorio
-type TokenRepository interface {
-	CriarTokenAcesso(domain.TokenAcesso) *erros.MsgErroApi
-	AtualizarTokenExpirado(domain.TokenAcesso) *erros.MsgErroApi
-	BuscarPorId(tokenAcessoID string) (*domain.TokenAcesso, *erros.MsgErroApi)
-}
+	var token domain.Token
 
-func (repo *tokenRepository) CriarTokenAcesso(token domain.TokenAcesso) *erros.MsgErroApi {
-
-	if erro := cassandra.GetSession().Query(queryCriarTokenAcesso,
-		token.AccessToken,
-		token.UserId,
-		token.ClienteId,
-		token.ExpiredToken,
-	).Exec(); erro != nil {
-		return erros.MsgInternalServerError(erro.Error())
-	}
-
-	return nil
-
-}
-
-func (repo *tokenRepository) AtualizarTokenExpirado(token domain.TokenAcesso) *erros.MsgErroApi {
-
-	if erro := cassandra.GetSession().Query(queryAtualizarTokenExpirado,
-		token.ExpiredToken,
-		token.AccessToken,
-	).Exec(); erro != nil {
-		return erros.MsgInternalServerError(erro.Error())
-	}
-
-	return nil
-
-}
-
-//BuscarPorId metodo que realiza s budsca do token pelo ID
-func (repo *tokenRepository) BuscarPorId(tokenAcessoID string) (*domain.TokenAcesso, *erros.MsgErroApi) {
-
-	var tokenAcesso domain.TokenAcesso
-
-	if erro := cassandra.GetSession().Query(queryGetTokenAcesso, tokenAcessoID).Scan(
-		&tokenAcesso.AccessToken,   //param 1
-		&tokenAcesso.ClienteId,     //param 2
-		&tokenAcesso.UserId,        //param 3
-		&tokenAcesso.ExpiredToken); //param 4
-	erro != nil {
+	if erro := cassandra.GetSession().Query(queryGetAccessToken, tokenID).Scan(&token.AccessToken, &token.AccessToken, &token.UserID, &token.ClientID, &token.Expires); erro != nil {
+		fmt.Println(erro)
 		if erro == gocql.ErrNotFound {
-			return nil, erros.MsgNotFoundErro("Nenhum token de acesso encontrado com o id fornecido")
+			return nil, errors.NewNotFoundErro("Token não encontrado")
 		}
-		return nil, erros.MsgInternalServerError(erro.Error())
+		return nil, errors.NewInternalServerError(erro.Error())
 	}
 
-	return &tokenAcesso, nil
+	return &token, nil
+
+}
+
+func (r *tokenRepository) Create(token domain.Token) *errors.RestErroAPI {
+
+	if erro := cassandra.GetSession().Query(queryCreateAccessToken,
+		token.AccessToken,
+		token.UserID,
+		token.ClientID,
+		token.Expires,
+	).Exec(); erro != nil {
+		return errors.NewInternalServerError("Erro ao tentar cadastrar o token")
+	}
+
+	return nil
+}
+
+func (r *tokenRepository) UpdateExpirationTime(token domain.Token) *errors.RestErroAPI {
+	if err := cassandra.GetSession().Query(queryUpdateExpires,
+		token.Expires,
+		token.AccessToken,
+	).Exec(); err != nil {
+		return errors.NewInternalServerError("Erro ao tentar atualizar o token")
+	}
+	return nil
 }
