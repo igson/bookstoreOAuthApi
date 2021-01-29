@@ -38,7 +38,7 @@ func (tc *tokenController) GetByID(c *gin.Context) {
 
 func (tc *tokenController) Create(c *gin.Context) {
 
-	var at domain.Token
+	var at domain.AccessTokenRequest
 
 	if err := c.ShouldBindJSON(&at); err != nil {
 		restErr := errors.NewBadRequestError("invalid json error body")
@@ -46,13 +46,13 @@ func (tc *tokenController) Create(c *gin.Context) {
 		return
 	}
 
-	err := tc.toTokenService.Create(at)
+	accessToken, err := tc.toTokenService.Create(at)
 
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, at)
+	c.JSON(http.StatusCreated, accessToken)
 
 }

@@ -5,17 +5,19 @@ import (
 
 	"github.com/igson/bookstoreOAuthApi/src/domain"
 	"github.com/igson/bookstoreOAuthApi/src/repository"
+	"github.com/igson/bookstoreOAuthApi/src/repository/rest"
 	"github.com/igson/bookstoreOAuthApi/src/utils/errors"
 )
 
 type TokenService interface {
 	GetByID(string) (*domain.Token, *errors.RestErroAPI)
-	Create(domain.Token) *errors.RestErroAPI
+	Create(requestToken domain.AccessTokenRequest) (*domain.Token, *errors.RestErroAPI)
 	UpdateExpirationTime(domain.Token) *errors.RestErroAPI
 }
 
 type tokenService struct {
-	toTokenRepository repository.TokenRepository
+	restUsersRepostory rest.RestUserRepository
+	toTokenRepository  repository.TokenRepository
 }
 
 //NewTokenService injeção
@@ -43,13 +45,30 @@ func (s *tokenService) GetByID(tokenID string) (*domain.Token, *errors.RestErroA
 
 }
 
-func (s *tokenService) Create(token domain.Token) *errors.RestErroAPI {
+func (s *tokenService) Create(requestToken domain.AccessTokenRequest) (*domain.Token, *errors.RestErroAPI) {
 
-	if erro := token.Validate(); erro != nil {
-		return erro
+	if err := requestToken.Validate(); err != nil {
+		return nil, err
 	}
 
-	return s.toTokenRepository.Create(token)
+	//TODO: Support both grant types: client_credentials and password
+
+	// Authenticate the user against the Users API:
+	user, err := s.restUsersRepostory.LoginUser(requestToken.Username, requestToken.Password)
+
+	if err != nil {
+		return nil, err
+	}
+
+	at := domain.GetNewAccessToken(user.ID)
+
+	at.Generate()
+
+	if err := s.toTokenRepository.Create(at); err != nil {
+		return nil, err
+	}
+
+	return &at, nil
 
 }
 

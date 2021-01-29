@@ -40,6 +40,7 @@ func (r *userRepository) LoginUser(email string, password string) (*users.User, 
 	}
 
 	if response.StatusCode > 299 {
+
 		var restErro errors.RestErroAPI
 
 		err := json.Unmarshal(response.Bytes(), &restErro)
